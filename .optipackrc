@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "order": [
+      "build",
+      "dev",
+      "debug",
+      "start",
+      "test",
+      "coverage",
+      "clean",
+      "ts-check",
+      "lint",
+      "fmt"
+    ]
+  }
+}

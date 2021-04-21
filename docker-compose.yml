@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  neo4j-api-neo4j:
+    image: neo4j:4.2@sha256:44ae8c7bb6d605bea1f34c0f2457f45a1120b9054b3e501d942686d21e597061
+    ports:
+      - published: $NEO4J_API_NEO4J_HTTP_PORT
+        target: 7474
+      - published: $NEO4J_API_NEO4J_BOLT_PORT
+        target: 7687
+    healthcheck:
+      test: wget http://localhost:7474/browser -O-
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    environment:
+      NEO4J_AUTH: ${NEO4J_API_NEO4J_USERNAME}/${NEO4J_API_NEO4J_PASSWORD}
+      NEO4JLABS_PLUGINS: '["apoc"]'
+      NEO4J_apoc_export_file_enabled: 'true'
+      NEO4J_apoc_import_file_enabled: 'true'
+      NEO4J_apoc_import_file_use__neo4j__config: 'true'
+    volumes:
+      - neo4j-api-neo4j-data:/data
+      - neo4j-api-neo4j-logs:/logs
+      - neo4j-api-neo4j-import:/var/lib/neo4j/import
+      - neo4j-api-neo4j-plugins:/plugins
+
+volumes:
+  neo4j-api-neo4j-data:
+  neo4j-api-neo4j-logs:
+  neo4j-api-neo4j-import:
+  neo4j-api-neo4j-plugins:
