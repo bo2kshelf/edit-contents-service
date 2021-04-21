@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+
+# output
+dist/
+
+# logfiles
+*.log
+
+# test
+coverage/
+junit/
+
+# cache
+.eslintcache
+
+# environments
+.env*
+!.env.example
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+
+# docker
+docker/*
+!docker/*.yml
+
+# yarn v2
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

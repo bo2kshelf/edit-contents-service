@@ -1,0 +1,189 @@
+version: 2.1
+
+orbs:
+  docker: circleci/docker@1.5.0
+  codecov: codecov/codecov@1.1.3
+
+commands:
+  berry-install-packages:
+    description: 'install packages by yarn v2 (berry)'
+    steps:
+      - run: yarn install --immutable --immutable-cache
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run: yarn run build
+      - store_artifacts:
+          path: ./dist
+
+  lint-prettier:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run: yarn run lint:prettier
+
+  lint-eslint:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - restore_cache:
+          keys:
+            - eslintcache-{{ .Branch }}-{{ checksum ".eslintrc" }}-{{ checksum "yarn.lock" }}
+            - eslintcache-{{ .Branch }}-{{ checksum ".eslintrc" }}
+            - eslintcache-{{ .Branch }}
+            - eslintcache
+      - run: yarn run lint:eslint --format junit --output-file ./junit/eslint.xml
+      - save_cache:
+          key: eslintcache-{{ .Branch }}-{{ checksum ".eslintrc" }}-{{ checksum "yarn.lock" }}
+          paths:
+            - .eslintcache
+      - store_test_results:
+          path: ./junit
+
+  ts-check:
+    docker:
+      - image: circleci/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run: yarn run ts-check
+
+  test-small:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run:
+          command: |
+            yarn run test:small --ci --runInBand \
+              --forceExit \
+              --reporters=default --reporters=jest-junit \
+              --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./junit
+            JEST_JUNIT_OUTPUT_NAME: jest.xml
+      - store_test_results:
+          path: ./junit
+      - store_artifacts:
+          path: ./coverage
+      - codecov/upload:
+          flags: small
+          file: ./coverage/lcov.info
+
+  test-medium:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run:
+          command: |
+            yarn run test:medium --ci --runInBand \
+              --forceExit \
+              --reporters=default --reporters=jest-junit \
+              --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./junit
+            JEST_JUNIT_OUTPUT_NAME: jest.xml
+      - store_test_results:
+          path: ./junit
+      - store_artifacts:
+          path: ./coverage
+      - codecov/upload:
+          flags: medium
+          file: ./coverage/lcov.info
+
+  test-large:
+    environment:
+      NEO4J_TEST_URL: bolt://localhost:7687
+    docker:
+      - image: cimg/node:14.16.1
+      - image: neo4j:4.2.5
+        environment:
+          NEO4J_AUTH: none
+          NEO4JLABS_PLUGINS: '["apoc"]'
+          NEO4J_apoc_export_file_enabled: 'true'
+          NEO4J_apoc_import_file_enabled: 'true'
+          NEO4J_apoc_import_file_use__neo4j__config: 'true'
+    steps:
+      - checkout
+      - berry-install-packages
+      - run:
+          command: |
+            yarn run test:large --ci --forceExit \
+              --reporters=default --reporters=jest-junit \
+              --testResultsProcessor=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./junit
+            JEST_JUNIT_OUTPUT_NAME: jest.xml
+      - store_test_results:
+          path: ./junit
+      - store_artifacts:
+          path: ./coverage
+      - codecov/upload:
+          flags: large
+          file: ./coverage/lcov.info
+
+  test-e2e:
+    docker:
+      - image: cimg/node:14.16.1
+    steps:
+      - checkout
+      - berry-install-packages
+      - run:
+          command: |
+            yarn run test:e2e --ci --forceExit
+
+workflows:
+  version: 2
+  develop:
+    jobs:
+      - lint-eslint
+      - lint-prettier
+      - docker/hadolint:
+          dockerfiles: Dockerfile
+      - ts-check
+      - test-small:
+          requires:
+            - ts-check
+      - test-medium:
+          requires:
+            - ts-check
+      - test-large:
+          requires:
+            - ts-check
+      - test-e2e:
+          requires:
+            - ts-check
+      - build:
+          requires:
+            - lint-eslint
+            - lint-prettier
+            - ts-check
+            - test-small
+            - test-medium
+            - test-large
+            - test-e2e
+      - docker/publish:
+          context:
+            - ghcr
+          requires:
+            - docker/hadolint
+            - build
+          filters:
+            branches:
+              only: develop
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          cache_from: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:develop
+          registry: ghcr.io
+          tag: develop
