@@ -59,20 +59,18 @@ describe(LabelsService.name, () => {
         );
       });
 
-      it.each([
-        [
-          {name: 'A', publisherId: expectedPublisher.id},
-          {id: expect.any(String), name: 'A'},
-        ],
-      ])('生成に成功する %#', async (data, expected) => {
-        const actual = await labelsService.create(data);
+      it.each([[{name: 'A', publisherId: expectedPublisher.id}]])(
+        '生成に成功する %#',
+        async (data) => {
+          const actual = await labelsService.create(data);
 
-        expect(actual).toStrictEqual(expected);
-      });
+          expect(actual).toStrictEqual(expect.any(String));
+        },
+      );
     });
   });
 
-  describe('publishedBook()', () => {
+  describe('labeledBook()', () => {
     const expectedLabel = {id: 'label1', name: faker.lorem.words(2)};
     const expectedBook = {id: 'book1', title: faker.lorem.words(2)};
 

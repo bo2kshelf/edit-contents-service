@@ -44,16 +44,13 @@ describe(PublishersService.name, () => {
   });
 
   describe('create()', () => {
-    it.each([
-      [
-        {name: faker.lorem.words(2)},
-        {id: expect.any(String), name: expect.any(String)},
-      ],
-    ])('生成に成功する %#', async (data, expected) => {
-      const actual = await publishersService.create(data);
-
-      expect(actual).toStrictEqual(expected);
-    });
+    it.each([[{name: faker.lorem.words(2)}]])(
+      '生成に成功する %#',
+      async (data) => {
+        const actual = await publishersService.create(data);
+        expect(actual).toStrictEqual(expect.any(String));
+      },
+    );
   });
 
   describe('publishedBook()', () => {

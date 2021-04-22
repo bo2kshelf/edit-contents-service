@@ -45,38 +45,18 @@ describe(BooksService.name, () => {
 
   describe('create()', () => {
     it.each([
-      [
-        {title: faker.lorem.words(2)},
-        {
-          id: expect.any(String),
-          title: expect.any(String),
-        },
-      ],
-      [
-        {title: faker.lorem.words(2), isbn: '9784832272460'},
-        {
-          id: expect.any(String),
-          title: expect.any(String),
-          isbn: '9784832272460',
-        },
-      ],
+      [{title: faker.lorem.words(2)}],
+      [{title: faker.lorem.words(2), isbn: '9784832272460'}],
       [
         {
           title: faker.lorem.words(2),
           subtitle: faker.lorem.words(2),
           isbn: '9784832272460',
         },
-        {
-          id: expect.any(String),
-          title: expect.any(String),
-          subtitle: expect.any(String),
-          isbn: '9784832272460',
-        },
       ],
-    ])('生成に成功する %#', async (data, expected) => {
+    ])('生成に成功する %#', async (data) => {
       const actual = await booksSerivce.create(data);
-
-      expect(actual).toStrictEqual(expected);
+      expect(actual).toStrictEqual(expect.any(String));
     });
   });
 });
