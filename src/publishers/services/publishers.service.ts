@@ -2,7 +2,6 @@ import {Injectable} from '@nestjs/common';
 import {IDService} from '../../common/id/id.service';
 import {Neo4jService} from '../../neo4j/neo4j.service';
 import {PublicationEntity} from '../entities/publication.entity';
-import {PublisherEntity} from '../entities/publisher.entity';
 
 @Injectable()
 export class PublishersService {
@@ -11,19 +10,19 @@ export class PublishersService {
     private readonly idService: IDService,
   ) {}
 
-  async create(data: {name: string}): Promise<PublisherEntity> {
+  async create(data: {name: string}): Promise<string> {
     const result = await this.neo4jService.write(
       `
       CREATE (n:Publisher {id: $id})
       SET n += $data
-      RETURN n
+      RETURN n.id AS n
       `,
       {
         id: this.idService.generate(),
         data,
       },
     );
-    return result.records[0].get(0).properties;
+    return result.records[0].get('n');
   }
 
   async publishedBook({
