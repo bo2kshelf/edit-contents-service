@@ -1,4 +1,4 @@
-import {ArgsType, Field, ID} from '@nestjs/graphql';
+import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql';
 
 @ArgsType()
 export class ConnectNextBookArgs {
@@ -6,5 +6,11 @@ export class ConnectNextBookArgs {
   previousId!: string;
 
   @Field(() => ID)
+  nextId!: string;
+}
+
+@ObjectType('ConnectNextBookReturn')
+export class ConnectNextBookReturnType {
+  previousId!: string;
   nextId!: string;
 }

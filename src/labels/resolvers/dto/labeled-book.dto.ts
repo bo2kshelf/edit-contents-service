@@ -1,4 +1,4 @@
-import {ArgsType, Field, ID} from '@nestjs/graphql';
+import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql';
 
 @ArgsType()
 export class LabeledBookArgs {
@@ -6,5 +6,11 @@ export class LabeledBookArgs {
   bookId!: string;
 
   @Field(() => ID)
+  labelId!: string;
+}
+
+@ObjectType('LabeledBookReturn')
+export class LabeledBookReturnType {
+  bookId!: string;
   labelId!: string;
 }

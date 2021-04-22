@@ -1,53 +1,13 @@
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-  ResolveReference,
-} from '@nestjs/graphql';
+import {Args, Mutation, Parent, ResolveField, Resolver} from '@nestjs/graphql';
+import {BookEntity} from '../../books/entities/book.entity';
 import {LabelEntity} from '../entities/label.entity';
-import {LabelingEntity} from '../entities/labeling.entity';
 import {LabelsService} from '../services/labels.service';
 import {CreateLabelArgs} from './dto/create-label.dto';
-import {GetLabelArgs} from './dto/get-label.dto';
-import {LabeledBookArgs} from './dto/labeled-book.dto';
-import {
-  ResolveLabelsBooksArgs,
-  ResolveLabelsBooksReturnEntity,
-} from './dto/resolve-label-books.dto';
+import {LabeledBookArgs, LabeledBookReturnType} from './dto/labeled-book.dto';
 
 @Resolver(() => LabelEntity)
 export class LabelsResolver {
   constructor(private readonly labelsService: LabelsService) {}
-
-  @ResolveReference()
-  resolveReference(reference: {__typename: string; id: string}) {
-    return this.labelsService.findById(reference.id);
-  }
-
-  @ResolveField(() => ResolveLabelsBooksReturnEntity)
-  async books(
-    @Parent() {id}: LabelEntity,
-    @Args({type: () => ResolveLabelsBooksArgs})
-    args: ResolveLabelsBooksArgs,
-  ): Promise<ResolveLabelsBooksReturnEntity> {
-    return this.labelsService.getLabeledBooks(id, args);
-  }
-
-  @Query(() => LabelEntity)
-  async label(
-    @Args({type: () => GetLabelArgs})
-    {id}: GetLabelArgs,
-  ): Promise<LabelEntity> {
-    return this.labelsService.findById(id);
-  }
-
-  @Query(() => [LabelEntity])
-  async allLabels(): Promise<LabelEntity[]> {
-    return this.labelsService.findAll();
-  }
 
   @Mutation(() => LabelEntity)
   async createLabel(
@@ -57,11 +17,26 @@ export class LabelsResolver {
     return this.labelsService.create(args);
   }
 
-  @Mutation(() => LabelingEntity)
+  @Mutation(() => LabeledBookReturnType)
   async labeledBook(
     @Args({type: () => LabeledBookArgs})
     args: LabeledBookArgs,
-  ): Promise<LabelingEntity> {
+  ): Promise<LabeledBookReturnType> {
     return this.labelsService.labeledBook(args);
+  }
+}
+
+@Resolver(() => LabeledBookReturnType)
+export class LabeledBookReturnTypeResolver {
+  @ResolveField(() => BookEntity)
+  async book(@Parent() {bookId}: LabeledBookReturnType): Promise<BookEntity> {
+    return {id: bookId};
+  }
+
+  @ResolveField(() => LabelEntity)
+  async publisher(
+    @Parent() {labelId}: LabeledBookReturnType,
+  ): Promise<LabelEntity> {
+    return {id: labelId};
   }
 }

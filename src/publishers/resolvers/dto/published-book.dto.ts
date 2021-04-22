@@ -1,10 +1,16 @@
-import {ArgsType, Field, ID} from '@nestjs/graphql';
+import {ArgsType, Field, ID, ObjectType} from '@nestjs/graphql';
 
 @ArgsType()
-export class ConnectBookToPublisherArgs {
+export class PublishedBookArgsType {
   @Field(() => ID)
   bookId!: string;
 
   @Field(() => ID)
+  publisherId!: string;
+}
+
+@ObjectType('PublishedBookReturn')
+export class PublishedBookReturnType {
+  bookId!: string;
   publisherId!: string;
 }

@@ -22,19 +22,4 @@ export class BooksService {
     );
     return result.records[0].get(0).properties;
   }
-
-  async findAll(): Promise<BookEntity[]> {
-    return this.neo4jService
-      .read(`MATCH (b:Book) RETURN b`)
-      .then((res) => res.records.map((record) => record.get(0).properties));
-  }
-
-  async findById(id: string): Promise<BookEntity> {
-    const result = await this.neo4jService.read(
-      `MATCH (b:Book {id: $id}) RETURN b`,
-      {id},
-    );
-    if (result.records.length === 0) throw new Error('Not Found');
-    return result.records[0].get(0).properties;
-  }
 }
