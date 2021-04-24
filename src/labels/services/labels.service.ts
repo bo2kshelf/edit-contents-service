@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {IDService} from '../../common/id/id.service';
 import {Neo4jService} from '../../neo4j/neo4j.service';
+import {LabelEntity} from '../entities/label.entity';
 import {LabelingEntity} from '../entities/labeling.entity';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class LabelsService {
   }: {
     name: string;
     publisherId: string;
-  }): Promise<string> {
+  }): Promise<LabelEntity> {
     const publisher = await this.neo4jService.write(
       `MATCH (p:Publisher {id: $publisherId}) RETURN p.id AS p`,
       {publisherId},
@@ -31,7 +32,7 @@ export class LabelsService {
       `,
       {id: this.idService.generate(), publisherId, data},
     );
-    return result.records[0].get('l');
+    return {id: result.records[0].get('l')};
   }
 
   async labeledBook({
