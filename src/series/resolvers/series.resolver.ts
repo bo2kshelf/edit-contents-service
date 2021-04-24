@@ -11,7 +11,6 @@ export class SeriesResolver {
   async createSeries(
     @Args({type: () => CreateSeriesArgs}) {bookId, ...data}: CreateSeriesArgs,
   ): Promise<SeriesEntity> {
-    const seriesId = await this.seriesService.createSeries(bookId, data);
-    return {id: seriesId};
+    return this.seriesService.createSeries(bookId, data);
   }
 }

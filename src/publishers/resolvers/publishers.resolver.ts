@@ -17,8 +17,7 @@ export class PublishersResolver {
     @Args({type: () => CreatePublisherArgs})
     args: CreatePublisherArgs,
   ): Promise<PublisherEntity> {
-    const id = await this.publishersService.create(args);
-    return {id};
+    return this.publishersService.create(args);
   }
 
   @Mutation(() => PublishedBookReturnType)

@@ -14,8 +14,7 @@ export class AuthorsResolver {
     @Args({type: () => CreateAuthorArgs})
     args: CreateAuthorArgs,
   ): Promise<AuthorEntity> {
-    const id = await this.authorsService.create(args);
-    return {id};
+    return this.authorsService.create(args);
   }
 
   @Mutation(() => WritedBookReturnType)
