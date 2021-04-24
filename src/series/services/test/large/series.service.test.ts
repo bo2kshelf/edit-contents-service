@@ -49,7 +49,7 @@ describe(SeriesService.name, () => {
       const actual = await seriesService.createSeries('book1', {
         title: 'series',
       });
-      expect(actual).toStrictEqual(expect.any(String));
+      expect(actual).toStrictEqual({id: expect.any(String)});
     });
 
     it('bookが存在しない場合例外を投げる', async () => {
