@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {IDService} from '../../common/id/id.service';
 import {Neo4jService} from '../../neo4j/neo4j.service';
+import {AuthorEntity} from '../entities/author.entity';
 import {AuthorRole} from '../entities/roles.enitty';
 import {WritingEntity} from '../entities/writing.entity';
 
@@ -11,7 +12,7 @@ export class AuthorsService {
     private readonly idService: IDService,
   ) {}
 
-  async create(data: {name: string}): Promise<string> {
+  async create(data: {name: string}): Promise<AuthorEntity> {
     const result = await this.neo4jService.write(
       `
       CREATE (a:Author {id: $id})
@@ -24,7 +25,7 @@ export class AuthorsService {
       },
     );
     if (result.records.length === 0) throw new Error('Not Found');
-    return result.records[0].get('a');
+    return {id: result.records[0].get('a')};
   }
 
   async writedBook(

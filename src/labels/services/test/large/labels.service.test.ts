@@ -59,14 +59,16 @@ describe(LabelsService.name, () => {
         );
       });
 
-      it.each([[{name: 'A', publisherId: expectedPublisher.id}]])(
-        '生成に成功する %#',
-        async (data) => {
-          const actual = await labelsService.create(data);
+      it.each([
+        [
+          {name: 'A', publisherId: expectedPublisher.id},
+          {id: expect.any(String)},
+        ],
+      ])('生成に成功する %#', async (data, expected) => {
+        const actual = await labelsService.create(data);
 
-          expect(actual).toStrictEqual(expect.any(String));
-        },
-      );
+        expect(actual).toStrictEqual(expected);
+      });
     });
   });
 

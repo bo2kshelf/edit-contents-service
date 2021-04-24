@@ -14,8 +14,7 @@ export class LabelsResolver {
     @Args({type: () => CreateLabelArgs})
     args: CreateLabelArgs,
   ): Promise<LabelEntity> {
-    const id = await this.labelsService.create(args);
-    return {id};
+    return this.labelsService.create(args);
   }
 
   @Mutation(() => LabeledBookReturnType)

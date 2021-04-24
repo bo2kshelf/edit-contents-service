@@ -19,6 +19,6 @@ export class BooksService {
     `,
       {id: this.idService.generate(), data},
     );
-    return result.records[0].get('b');
+    return {id: result.records[0].get('b')};
   }
 }

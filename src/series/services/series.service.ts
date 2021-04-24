@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {IDService} from '../../common/id/id.service';
 import {Neo4jService} from '../../neo4j/neo4j.service';
+import {SeriesEntity} from '../entities/series.entity';
 
 @Injectable()
 export class SeriesService {
@@ -9,7 +10,10 @@ export class SeriesService {
     private readonly idService: IDService,
   ) {}
 
-  async createSeries(bookId: string, data: {title: string}): Promise<string> {
+  async createSeries(
+    bookId: string,
+    data: {title: string},
+  ): Promise<SeriesEntity> {
     const result = await this.neo4jService.write(
       `
         MATCH (b:Book {id: $bookId})
@@ -20,7 +24,7 @@ export class SeriesService {
       {bookId, data: {id: this.idService.generate(), ...data}},
     );
     if (result.records.length === 0) throw new Error('Not Found');
-    return result.records[0].get('s');
+    return {id: result.records[0].get('s')};
   }
 
   async connectBooksAsNextBook({
