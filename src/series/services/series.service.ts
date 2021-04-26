@@ -37,6 +37,9 @@ export class SeriesService {
     previousId: string;
     nextId: string;
   }> {
+    if (previousId === nextId)
+      throw new Error("Can't connect between the same books");
+
     const result = await this.neo4jService.write(
       `
         MATCH (p:Book {id: $previousId}), (n:Book {id: $nextId})

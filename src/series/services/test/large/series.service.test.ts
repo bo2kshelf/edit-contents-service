@@ -76,6 +76,22 @@ describe(SeriesService.name, () => {
       expect(actual.nextId).toBe('next');
     });
 
+    it('previousIdとnextIdが一緒の場合は例外を投げる', async () => {
+      await neo4jService.write(
+        `
+        CREATE (p:Book {id: "pre"})
+        CREATE (n:Book {id: "next"})
+        RETURN *
+        `,
+      );
+      await expect(() =>
+        seriesService.connectBooksAsNextBook({
+          previousId: 'pre',
+          nextId: 'pre',
+        }),
+      ).rejects.toThrow("Can't connect between the same books");
+    });
+
     it('previousIdに紐づくbookが存在しない場合例外を投げる', async () => {
       await neo4jService.write(
         `
